@@ -2,6 +2,9 @@ import psycopg2
 import requests
 import time
 from datetime import datetime
+import pytz
+
+user_timezone = pytz.timezone("Europe/Berlin")
 
 urls = [
         "http://worldtimeapi.org/api/timezone/Europe/Berlin",
@@ -21,6 +24,8 @@ while True:
         for url in urls:
                 response = requests.get(url)
                 print(url, response.elapsed.total_seconds())
+                measuredate = user_timezone.localize(datetime.now())
+                utc_date = measuredate.astimezone(pytz.utc)
                 cursor.execute(insert_query, (url, datetime.now(), response.elapsed.total_seconds()*100000))
                 conn.commit()
         time.sleep(0.2)
